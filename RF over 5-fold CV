@@ -64,6 +64,10 @@ customRF$levels <- function(x) x$classes
 tunegrid <- expand.grid(.mtry=c(1:5), .ntree=seq(100,500,100))
 RFmodel <- train(Class~., data=internal , method=customRF, metric=c("Accuracy"), tuneGrid=tunegrid, trControl=trainControl(method = "cv", number=5))
 Resultcv = RFmodel$ finalModel$ confusion [,1:2] 
+pred=prediction(RFmodel$ finalModel$ votes[,2],internal[,ncol(internal)])
+perf_AUC=performance(pred,"auc") #Calculate the AUC value
+AUC = perf_AUC@y.values[[1]]
+
 data = Resultcv
 	ACCtr = ((data[1]+data[4])/(data[1]+data[2]+data[3]+data[4]))*100
 	SENStr =  (data[1]/(data[1]+data[2]))*100
@@ -74,5 +78,5 @@ data = Resultcv
 	MCC4	=  sqrt(MCC2)*sqrt(MCC3)
 	MCCtr  = MCC1/MCC4
 
-result = data.frame (ACCtr,SENStr,SPECtr,MCCtr)
+result = data.frame (ACCtr,SENStr,SPECtr,MCCtr,AUC)
 
