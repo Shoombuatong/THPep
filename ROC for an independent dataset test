@@ -1,0 +1,225 @@
+#######set directory
+setwd('D:\\Peptide prediction\\Tumor homing peptides\\Data set')
+#######Load package
+library(AUC)
+library(ROCR)
+library(prospectr)
+
+par(mfrow = c(2,3 ),oma=c(0, 1, 0, 1))
+
+data = read.csv("RF main cv roc kenard.csv", header = TRUE)
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Main (5CV)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
+data = read.csv("RF main90 cv roc kenard.csv", header = TRUE)
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Main90 (5CV)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
+data = read.csv("RF small cv roc kenard.csv", header = TRUE)
+
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Small (5CV)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
+
+data = read.csv("RF main ext roc kenard.csv", header = TRUE)
+
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Main (External test)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
+
+data = read.csv("RF main90 ext roc kenard.csv", header = TRUE)
+
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Main90 (External test)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
+
+data = read.csv("RF small ext roc kenard.csv", header = TRUE)
+
+pred <- prediction(data[,1],data[,2])
+p11 <- performance(pred, 'tpr', 'fpr')
+pred <- prediction(data[,3],data[,4])
+p12 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,5],data[,6])
+p13 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,7],data[,8])
+p14 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,9],data[,10])
+p15 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,11],data[,12])
+p16 <- performance(pred,'tpr', 'fpr')
+pred <- prediction(data[,13],data[,14])
+p17<- performance(pred,'tpr', 'fpr')
+
+plot(p11, avg="vertical", lwd=1.7, col="green",
+spread.estimate="stderror",plotCI.lwd=1.7, main = "Small (External test)",xlab = "False positive rate", ylab= "True positive rate", font.lab=1,cex.lab=1)
+lines(x = c(0,100), y = c(0,100))
+plot(p12, avg="vertical", lwd=1.7, col="aquamarine1",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p13, avg="vertical", lwd=1.7, col="darkred",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p14, avg="vertical", lwd=1.7, col="red",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p15, avg="vertical", lwd=1.7, col="blue",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p16, avg="vertical", lwd=1.7, col="darkgoldenrod",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
+spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
+legend(0.45, 0.47, bty='n', xpd=NA,
+       c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
+       col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
