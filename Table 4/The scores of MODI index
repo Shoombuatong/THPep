@@ -1,0 +1,101 @@
+######set directory
+setwd('D:\\Peptide prediction\\Tumor homing peptides\\Data set')
+#######Load package
+library(Interpol)
+library(protr)
+library(seqinr)
+
+AAindex_main = c("CHAM830101","ANDN920101","CHAM820102","BUNA790103","BROC820102","CHAM830102","BURA740101","BEGF750102","CHAM810101","ARGP820103","BURA740102","BUNA790102","FASG890101","BROC820101",
+"BUNA790101")
+
+AAindex_main90 = c("NAKH900101","AURR980120","ONEK900102","AURR980119","GUYH850101","ONEK900101","NAKH900102","AURR980118","NAGK730102","NAGK730103",
+"HUTJ700102","LAWE840101","KRIW790101","HUTJ700101","HOPT810101","LEVM760104","KYTJ820101","HUTJ700103","BURA740101","KRIW790103",
+"HOPA770101","CHAM830101","ISOY800101","NAKH900105","KLEP840101","CHAM820101","ISOY800103","BUNA790102","KANM800103","KRIW790102")
+
+AAindex_small = c("ANDN920101","CIDH920103","BUNA790103","CIDH920101","FASG890101","CHOP780206","BIOV880101","BIOV880102","CHOP780214","BHAR880101",
+"ARGP820103","COHE430101","BULH740101","CIDH920104","BEGF750102","CHOP780216","CHAM830102","BULH740102","CHOC750101","CHOP780212",
+"CIDH920105","CIDH920102","BIGC670101","ARGP820102","CHAM830104")
+
+######### para1 and para2 are lamda and weight, where 2/0.1, 1/0.5 and 3/0.6 for Main, Main90 and Small datasets,respectively
+para1 = 3
+para2 = 0.6
+#######Read data
+x <- read.fasta('small.fasta', seqtype="AA", as.string = TRUE)
+D = read.csv("label small.csv", header = TRUE) 
+m = length(x)
+aac <- t(sapply(x, extractAAC))
+dpc <- t(sapply(x, extractDC))
+paac <- matrix(nrow = m, ncol = 20 + para1)
+for(i in 1:m){ 
+paac[i, ]= extractPAAC(x[[i]][1],lambda = para1 , w = para2 , props = AAindex_small)
+}
+
+#### Dividing dataset into internal and external sets
+data = data.frame(aac, Class = D[,ncol(D)])
+
+X <- subset(data, data[,ncol(data)] == 'THP')
+Y <- subset(data, data[,ncol(data)] == 'non-THP')
+npos = round(nrow(X)*0.75)
+nneg = round(nrow(Y)*0.75)
+kenX <- kenStone(X[,-ncol(X)],k=npos,metric='euclid',pc=2)
+kenY <- kenStone(Y[,-ncol(Y)],k=nneg,metric='euclid',pc=2)
+Index_Pos = rbind(cbind(kenX$model,rep('train',length(kenX$model))),cbind(kenX$test,rep('test',length(kenX$test))))
+Index_Neg = rbind(cbind(kenY$model,rep('train',length(kenY$model))),cbind(kenY$test,rep('test',length(kenY$test))))
+### Consyructing tr  and ts based on above in dex
+Index_Pos2 = data.frame(index = as.numeric(Index_Pos[,1]),Index_Pos[,2])
+Final_Pos = cbind(X, index = Index_Pos2[order(Index_Pos2[,1]),])
+ndel = ncol(Final_Pos)
+del = c(ndel-1, ndel )
+TR_Pos <- subset(Final_Pos, Final_Pos[,ncol(Final_Pos)] == 'train')[,-del]
+TS_Pos <- subset(Final_Pos, Final_Pos[,ncol(Final_Pos)] == 'test')[,-del]
+Index_Neg2 = data.frame(index = as.numeric(Index_Neg[,1]),Index_Neg[,2])
+Final_Neg = cbind(Y, index = Index_Neg2[order(Index_Neg2[,1]),])
+TR_Neg <- subset(Final_Neg, Final_Neg[,ncol(Final_Neg)] == 'train')[,-del]
+TS_Neg <- subset(Final_Neg, Final_Neg[,ncol(Final_Neg)] == 'test')[,-del]
+
+internal = rbind(TR_Pos,TR_Neg)
+external = rbind(TS_Pos,TS_Neg)
+
+############# MODI for internal
+Dat <- internal
+n = ncol(Dat)
+m= n-1
+AA <- Dat[,1:m]
+class = as.numeric(Dat[,ncol(Dat)])
+
+d1 <- dist(AA, upper=TRUE, diag=TRUE, method = "euclidean")
+nd1 <- scale(d1)
+nd2 = ((nd1-min(nd1))/(max(nd1)-min(nd1)))
+MOBI <- matrix(nrow = nrow(Dat), ncol = 1)
+
+for (i in 1:nrow(Dat)){
+MOBI[i,] <- Dat[order(nd2[i,]),][2,n]
+}
+
+result = data.frame(class,MOBI)
+X <- subset(result, result[,1] == '1')
+Y <- subset(result, result[,1] == '2')
+
+MODItr = (table(X)[1]/nrow(X)+ table(Y)[2]/nrow(Y))/2
+############# MODI for external
+Dat <- external
+n = ncol(Dat)
+m= n-1
+AA <- Dat[,1:m]
+class = as.numeric(Dat[,ncol(Dat)])
+
+d1 <- dist(AA, upper=TRUE, diag=TRUE, method = "euclidean")
+nd1 <- scale(d1)
+nd2 = ((nd1-min(nd1))/(max(nd1)-min(nd1)))
+MOBI <- matrix(nrow = nrow(Dat), ncol = 1)
+
+for (i in 1:nrow(Dat)){
+MOBI[i,] <- Dat[order(nd2[i,]),][2,n]
+}
+
+result = data.frame(class,MOBI)
+X <- subset(result, result[,1] == '1')
+Y <- subset(result, result[,1] == '2')
+MODIts = (table(X)[1]/nrow(X)+ table(Y)[2]/nrow(Y))/2
+
+round(data.frame(MODItr, MODIts),2)
