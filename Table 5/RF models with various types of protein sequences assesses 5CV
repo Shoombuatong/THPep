@@ -34,7 +34,7 @@ dpc <- t(sapply(A, extractDC))
 
 paac <- matrix(nrow = m, ncol = 20 + para1)
 for(i in 1:m){ 
-paac[i, ] = extractPAAC(A[[i]][1],lambda = para1 , w = para2, props = AAindex[1:20])
+paac[i, ] = extractPAAC(A[[i]][1],lambda = para1 , w = para2, props = AAindex_main)
 }
 
 internal = data.frame(aac,Class = label)
