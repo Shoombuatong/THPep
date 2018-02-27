@@ -1,0 +1,113 @@
+setwd('D:\\Peptide prediction\\Tumor homing peptides\\Data set')
+
+library(RWeka)
+library(caret)
+library(randomForest)
+library(Interpol)
+library(protr)
+library(seqinr)
+library(Peptides)
+library(prospectr)
+
+################## customRF
+customRF <- list(type = "Classification", library = "randomForest", loop = NULL)
+customRF$parameters <- data.frame(parameter = c("mtry", "ntree"), class = rep("numeric", 2), label = c("mtry", "ntree"))
+customRF$grid <- function(x, y, len = NULL, search = "grid") {}
+customRF$fit <- function(x, y, wts, param, lev, last, weights, classProbs, ...) {
+  randomForest(x, y, mtry = param$mtry, ntree=param$ntree, ...)
+}
+customRF$predict <- function(modelFit, newdata, preProc = NULL, submodels = NULL)
+   predict(modelFit, newdata)
+customRF$prob <- function(modelFit, newdata, preProc = NULL, submodels = NULL)
+   predict(modelFit, newdata, type = "prob")
+customRF$sort <- function(x) x[order(x[,1]),]
+customRF$levels <- function(x) x$classes
+
+AAindex_main = c("CHAM830101","ANDN920101","CHAM820102","BUNA790103","BROC820102","CHAM830102","BURA740101","BEGF750102","CHAM810101","ARGP820103","BURA740102","BUNA790102","FASG890101","BROC820101",
+"BUNA790101","BULH740102","BULH740101","CHAM820101","BIOV880102","BIOV880101","ARGP820102","BHAR880101","BEGF750103","BEGF750101","ARGP820101","BIGC670101","CHOC760103","CHAM830107","CHAM830104",
+"CHOP780204")
+
+AAindex_main90 = c("NAKH900101","AURR980120","ONEK900102","AURR980119","GUYH850101","ONEK900101","NAKH900102","AURR980118","NAGK730102","NAGK730103",
+"HUTJ700102","LAWE840101","KRIW790101","HUTJ700101","HOPT810101","LEVM760104","KYTJ820101","HUTJ700103","BURA740101","KRIW790103",
+"HOPA770101","CHAM830101","ISOY800101","NAKH900105","KLEP840101","CHAM820101","ISOY800103","BUNA790102","KANM800103","KRIW790102")
+
+AAindex_small = c("ANDN920101","CIDH920103","BUNA790103","CIDH920101","FASG890101","CHOP780206","BIOV880101","BIOV880102","CHOP780214","BHAR880101",
+"ARGP820103","COHE430101","BULH740101","CIDH920104","BEGF750102","CHOP780216","CHAM830102","BULH740102","CHOC750101","CHOP780212",
+"CIDH920105","CIDH920102","BIGC670101","ARGP820102","CHAM830104")
+
+####the optimal combination parameters lamda and weight for Main, Main90 and Small were 2/0.1, 1/0.5 and 3/0.6, repectively.
+para1 = 2
+para2 = 0.1
+#######Read data
+A <- read.fasta('main.fasta', seqtype="AA", as.string = TRUE)
+D = read.csv("label main.csv", header = TRUE) 
+m = length(A)
+aac<- t(sapply(A, extractAAC))
+dpc <- t(sapply(A, extractDC))
+
+paac <- matrix(nrow = m, ncol = 20 + para1)
+for(i in 1:m){ 
+paac[i, ] = extractPAAC(A[[i]][1],lambda = para1 , w = para2, props = AAindex_main)
+}
+
+#### Dividing dataset into internal and external sets
+data = data.frame(aac, Class = D[,ncol(D)])
+
+X <- subset(data, data[,ncol(data)] == 'THP')
+Y <- subset(data, data[,ncol(data)] == 'non-THP')
+npos = round(nrow(X)*0.75)
+nneg = round(nrow(Y)*0.75)
+kenX <- kenStone(X[,-ncol(X)],k=npos,metric='euclid',pc=2)
+kenY <- kenStone(Y[,-ncol(Y)],k=nneg,metric='euclid',pc=2)
+Index_Pos = rbind(cbind(kenX$model,rep('train',length(kenX$model))),cbind(kenX$test,rep('test',length(kenX$test))))
+Index_Neg = rbind(cbind(kenY$model,rep('train',length(kenY$model))),cbind(kenY$test,rep('test',length(kenY$test))))
+
+Index_Pos2 = data.frame(index = as.numeric(Index_Pos[,1]),Index_Pos[,2])
+Final_Pos = cbind(X, index = Index_Pos2[order(Index_Pos2[,1]),])
+ndel = ncol(Final_Pos)
+del = c(ndel-1, ndel )
+TR_Pos <- subset(Final_Pos, Final_Pos[,ncol(Final_Pos)] == 'train')[,-del]
+TS_Pos <- subset(Final_Pos, Final_Pos[,ncol(Final_Pos)] == 'test')[,-del]
+Index_Neg2 = data.frame(index = as.numeric(Index_Neg[,1]),Index_Neg[,2])
+Final_Neg = cbind(Y, index = Index_Neg2[order(Index_Neg2[,1]),])
+TR_Neg <- subset(Final_Neg, Final_Neg[,ncol(Final_Neg)] == 'train')[,-del]
+TS_Neg <- subset(Final_Neg, Final_Neg[,ncol(Final_Neg)] == 'test')[,-del]
+
+internal = rbind(TR_Pos,TR_Neg)
+external = rbind(TS_Pos,TS_Neg)
+
+######### External validation over 5CV
+tunegrid <- expand.grid(.mtry=c(1:5), .ntree=seq(100,500,100))
+RFmodel <- train(Class~., data=internal , method=customRF, metric=c("Accuracy"), tuneGrid=tunegrid, trControl=trainControl(method = "cv", number=5))
+Resultcv = RFmodel$ finalModel$ confusion [,1:2]
+pred=prediction(RFmodel$ finalModel$ votes[,2],internal[,ncol(internal)])
+perf_AUC=performance(pred,"auc") #Calculate the AUC value
+AUCtr = perf_AUC@y.values[[1]]
+
+################### External validation
+predcv = table(external$Class, predict(RFmodel, external))  ###### Prediction on external set
+Resultext <- rbind(predcv[1], predcv[3],predcv[2], predcv[4]) ###### Reporting TN,FP,FN,TP
+pred= prediction(predict(RFmodel ,external,type = "prob")[,2],external[,ncol(external)])
+perf_AUC=performance(pred,"auc") #Calculate the AUC value
+AUCts = perf_AUC@y.values[[1]]
+################### Performance report
+data = Resultcv
+	ACCtr = (data[1]+data[4])/(data[1]+data[2]+data[3]+data[4])*100
+	SENStr  =  (data[1]/(data[1]+data[2]))*100
+	SPECtr = (data[4])/(data[3]+data[4])*100
+	MCC1      = (data[1]*data[4]) - (data[2]*data[3])
+	MCC2      =  (data[4]+data[2])*(data[4]+data[3])
+	MCC3      =  (data[1]+data[2])*(data[1]+data[3])
+	MCC4	=  sqrt(MCC2)*sqrt(MCC3)
+	MCCtr  = MCC1/MCC4
+data = Resultext
+	ACCts = (data[1]+data[4])/(data[1]+data[2]+data[3]+data[4])*100
+	SENSts  =  (data[1]/(data[1]+data[2]))*100
+	SPECts = (data[4])/(data[3]+data[4])*100
+	MCC1      = (data[1]*data[4]) - (data[2]*data[3])
+	MCC2      =  (data[4]+data[2])*(data[4]+data[3])
+	MCC3      =  (data[1]+data[2])*(data[1]+data[3])
+	MCC4	=  sqrt(MCC2)*sqrt(MCC3)
+	MCCts = MCC1/MCC4
+
+round(data.frame (ACCtr,SENStr,SPECtr,MCCtr,AUCtr,ACCts,SENSts,SPECts,MCCts,AUCts),2)
