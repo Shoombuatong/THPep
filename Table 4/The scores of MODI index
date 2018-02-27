@@ -4,6 +4,7 @@ setwd('D:\\Peptide prediction\\Tumor homing peptides\\Data set')
 library(Interpol)
 library(protr)
 library(seqinr)
+library(prospectr)
 
 AAindex_main = c("CHAM830101","ANDN920101","CHAM820102","BUNA790103","BROC820102","CHAM830102","BURA740101","BEGF750102","CHAM810101","ARGP820103","BURA740102","BUNA790102","FASG890101","BROC820101",
 "BUNA790101")
