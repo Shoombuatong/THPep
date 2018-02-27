@@ -172,7 +172,7 @@ spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
 plot(p17, avg="vertical", lwd=1.7, col="mediumorchid3",
 spread.estimate="stderror",plotCI.lwd=1.7,add=TRUE)
 
-
-  legend(x="center", ncol=2, 
+legend(0.45, 0.47, bty='n', xpd=NA,
        c("AAC","PseAAC","DPC","AAC+PseAAC","AAC+DPC","PseAAC+DPC","AAC+PseAAC+DPC"), lty = 1, lwd=1.7, 
        col=c("green","aquamarine1","darkred","red","blue","darkgoldenrod","mediumorchid3"),cex=0.7)
+
