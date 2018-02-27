@@ -1,5 +1,3 @@
-
-
 #######set directory
 setwd('D:\\Peptide prediction\\Tumor homing peptides\\Data set')
 #######Load package
