@@ -46,7 +46,7 @@ rankpcp2 = t(rankpcp)
 mdgi = data.frame(rankpcp2,meangini)
 ranked_pcp = mdgi[order(mdgi$meangini, decreasing=T),]
 
-data_ranked_pcp = data.frame(t(ranked_pcp[,-ncol(ranked_pcp)]),Class = D)
+data_ranked_pcp = data.frame(t(ranked_pcp[,-ncol(ranked_pcp)]))
 ###########################################################################
 customRF <- list(type = "Classification", library = "randomForest", loop = NULL)
 customRF$parameters <- data.frame(parameter = c("mtry", "ntree"), class = rep("numeric", 2), label = c("mtry", "ntree"))
@@ -62,6 +62,7 @@ customRF$sort <- function(x) x[order(x[,1]),]
 customRF$levels <- function(x) x$classes
 
 ############ m is a number of informative PCPs used to construct a model, such as m = 5, 10, 15, ...
+internal =data.frame(data_ranked_pcp[,1:5],Class = D)
 tunegrid <- expand.grid(.mtry=c(1:5), .ntree=seq(100,500,100))
 RFmodel <- train(Class~., data=internal , method=customRF, metric=c("Accuracy"), tuneGrid=tunegrid, trControl=trainControl(method = "cv", number=5))
 Resultcv = RFmodel$ finalModel$ confusion [,1:2] 
@@ -79,4 +80,4 @@ data = Resultcv
 	MCC4	=  sqrt(MCC2)*sqrt(MCC3)
 	MCCtr  = MCC1/MCC4
 
-result = data.frame (ACCtr,SENStr,SPECtr,MCCtr,AUC)
+data.frame (ACCtr,SENStr,SPECtr,MCCtr,AUC)
