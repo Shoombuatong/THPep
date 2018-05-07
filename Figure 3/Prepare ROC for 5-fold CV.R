@@ -24,7 +24,7 @@ customRF$prob <- function(modelFit, newdata, preProc = NULL, submodels = NULL)
 customRF$sort <- function(x) x[order(x[,1]),]
 customRF$levels <- function(x) x$classes
 
-################## Kennard stone 
+################## 
 AAindex_main = c("CHAM830101","ANDN920101","CHAM820102","BUNA790103","BROC820102","CHAM830102","BURA740101","BEGF750102","CHAM810101","ARGP820103","BURA740102","BUNA790102","FASG890101","BROC820101",
 "BUNA790101","BULH740102","BULH740101","CHAM820101","BIOV880102","BIOV880101","ARGP820102","BHAR880101","BEGF750103","BEGF750101","ARGP820101","BIGC670101","CHOC760103","CHAM830107","CHAM830104",
 "CHOP780204")
